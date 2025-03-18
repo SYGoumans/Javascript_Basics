@@ -1,0 +1,120 @@
+'use strict';
+
+const mockData = require('./mockData.js').data;
+const prompt = require('prompt-sync')();
+
+const profielUser = {
+    first_name: "",
+    last_name: "",
+    age: 0,
+    gender: "",
+    gender_interest: "",
+    location: "",
+    min_age_interest: 0,
+    max_age_interest: 0
+}
+
+
+// Uitvraag voor- en achternaam, controle op 'leeg'
+while (!profielUser.first_name || !profielUser.last_name) {
+    if (!profielUser.first_name) {
+        profielUser.first_name = prompt("What is your first name?");
+    }
+    
+    if (!profielUser.last_name) {
+        profielUser.last_name = prompt("What is your last name?");
+    }
+}
+
+// Uitvraag gender, controle op geldige invoer
+while (true) {
+    profielUser.gender = prompt("What is your gender? M, F or X").toUpperCase();
+    
+    if (profielUser.gender === "X" || profielUser.gender === "F" || profielUser.gender === "M") {
+        break;
+    } else {
+        console.log("Ongeldige invoer. Probeer het opnieuw.");
+    }
+}
+
+// Uitvraag gender of interest, controle op geldige invoer
+while (true) {
+    profielUser.gender_interest = prompt("What is your gender of interest? M, F or X").toUpperCase();
+    
+    if (profielUser.gender_interest === "X" || profielUser.gender_interest === "F" || profielUser.gender_interest === "M") {
+        break;
+    } else {
+        console.log("Ongeldige invoer. Probeer het opnieuw.");
+    }
+}
+
+while (true) {
+    profielUser.location = prompt("What is your location? Rural or city").toLowerCase();
+    
+    if (profielUser.location === "rural" || profielUser.location === "city") {
+        break;
+    } else {
+        console.log("Ongeldige invoer. Probeer het opnieuw.");
+    }
+}
+
+// Uitvraag leeftijd en gewenste leeftijd date, uitsluiten minderjarige capriolen
+while (profielUser.age < 18) {
+    profielUser.age = Number(prompt("What is your age?"));
+
+    if (profielUser.age < 18) {
+        let yearsToGo = 18 - profielUser.age;
+        console.log(`Unfortunately, you are too young. You are welcome in ${yearsToGo} years`);
+        break;        
+    }
+
+    while (profielUser.min_age_interest < 18) {
+        profielUser.min_age_interest = Number(prompt("What is the min. age for your date?"));
+        if (profielUser.min_age_interest < 18) {
+            console.log("What's too yough, weirdo");        
+        }
+    }
+
+    while (profielUser.max_age_interest < 18 || profielUser.max_age_interest < profielUser.min_age_interest) {
+        profielUser.max_age_interest = Number(prompt("What is the max. age for your date?"));
+        if (profielUser.max_age_interest < 18) {
+            console.log("What's too yough, weirdo");
+        }
+    
+        if (profielUser.max_age_interest < profielUser.min_age_interest) {
+            console.log(`The maximum age must be higher than the specified minimum age (${profielUser.min_age_interest})`);        
+        }
+    }
+}
+
+// console.log(profielUser.first_name, profielUser.last_name, profielUser.age, profielUser.min_age_interest, profielUser.max_age_interest);
+
+let candiDate_number = 0;
+
+// const profielUser = {
+//     first_name: "Sandra",
+//     last_name: "Goumans",
+//     age: 28,
+//     gender: "F",
+//     gender_interest: "M",
+//     location: "city",
+//     min_age_interest: 20,
+//     max_age_interest: 50
+// }
+
+for (let candiDate of mockData) {
+
+    const ageMatch_candiDate = profielUser.age >= candiDate.min_age_interest && profielUser.age <= candiDate.max_age_interest;
+    const ageMatch_profielUser = candiDate.age >= profielUser.min_age_interest && candiDate.age <= profielUser.max_age_interest;
+    const genderMatch = candiDate.gender_interest.includes(profielUser.gender) && profielUser.gender_interest.includes(candiDate.gender);
+    const locationMatch = candiDate.location === profielUser.location;
+ 
+    if (ageMatch_candiDate && ageMatch_profielUser && genderMatch && locationMatch) {
+        candiDate_number = candiDate_number + 1;
+        console.log(candiDate_number, candiDate.first_name, candiDate.last_name, candiDate.age, "jaar,", candiDate.location);
+    } 
+}
+
+if (candiDate_number === 0) {
+    console.log("Geen match gevonden")        
+}
